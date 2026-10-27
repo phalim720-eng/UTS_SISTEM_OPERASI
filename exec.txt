@@ -1,0 +1,32 @@
+exec
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main(void) {
+ pid_t pid = fork();
+ if (pid == 0) {
+ char *args[] = {"ls", "-l", "/proc/self/", NULL};
+ execvp("ls", args);
+ perror("execvp"); /* hanya tercapai jika exec GAGAL */
+ _exit(127);
+ }
+ int status;
+ waitpid(pid, &status, 0);
+ if (WIFEXITED(status))
+ printf("Anak selesai normal, exit code = %d\n", WEXITSTATUS(status));
+ else if (WIFSIGNALED(status))
+ printf("Anak dibunuh sinyal %d\n", WTERMSIG(status));
+ return 0;
+}
+
+Langkah demo
+1. Tampilkan kode. Tunjuk execvp, baris perror dan _exit(127) di bawahnya, lalu waitpid
+dan makro WIFEXITED / WEXITSTATUS.
+2. Kompilasi dan jalankan: gcc -Wall fork_exec.c -o fork_exec lalu ./fork_exec
+3. Ubah "ls" pada execvp menjadi "lsx", simpan, kompilasi ulang, dan jalankan lagi.
+4. Kembalikan ke "ls" bila ingin dipakai lagi.
+
+gcc -Wall fork_exec.c -o fork_exec
+./fork_exec
