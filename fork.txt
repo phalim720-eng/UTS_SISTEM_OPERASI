@@ -1,0 +1,30 @@
+fork
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main(void) {
+ int x = 100;
+ printf("Mulai: PID=%d\n", getpid());
+ pid_t pid = fork();
+ if (pid < 0) { perror("fork"); return 1; }
+ if (pid == 0) { /* proses anak */
+ x += 1;
+ printf("[Anak] PID=%d PPID=%d x=%d &x=%p\n",
+ getpid(), getppid(), x, (void *)&x);
+ } else { /* proses induk */
+ wait(NULL);
+ printf("[Induk] PID=%d anak=%d x=%d &x=%p\n",
+ getpid(), pid, x, (void *)&x);
+ }
+ return 0;
+}
+
+Langkah demo
+1. Tampilkan kode di editor atau dengan cat fork_dasar.c. Tunjuk variabel x, pemanggilan
+fork(), dan tiga kemungkinan nilai pid.
+2. Kompilasi: gcc -Wall fork_dasar.c -o fork_dasar
+3. Jalankan: ./fork_dasar
+4. Jalankan sekali atau dua kali lagi untuk menunjukkan PID berubah, tetapi pola hasilnya sama.
+
+
